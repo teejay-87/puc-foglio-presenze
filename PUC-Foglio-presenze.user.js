@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       PUC Foglio presenze
 // @namespace  http://zucchetti.cl-grp.local:8080/
-// @version    4.5
+// @version    4.6
 // @updateURL      https://raw.githubusercontent.com/teejay-87/puc-foglio-presenze/master/PUC-Foglio-presenze.meta.js
 // @downloadURL    https://raw.githubusercontent.com/teejay-87/puc-foglio-presenze/master/PUC-Foglio-presenze.user.js
 // @description  Plugin foglio presenze per calcolo ora di uscita
@@ -388,6 +388,13 @@ function addCustomPluginCode() {
                 executed = true;
 
                 e1MinHour = e1Val.split(':');
+                
+                // non considera minutaggio prima delle ore 08:30
+                if (e1MinHour[0] < 8 || (e1MinHour[0] == 8 && e1MinHour[1] < 30)) {
+                    e1MinHour[0] = 8;
+                    e1MinHour[1] = 30;
+                }
+                
                 // correzione per ritardi fino alle 9:45
                 if (e1MinHour[0] == 9 && e1MinHour[1] > 30 && e1MinHour[1] <= 45) {
                     e1MinHour[1] = 45;
@@ -496,6 +503,13 @@ function addCustomPluginCode() {
                 executed = true;
 
                 e1MinHour = e1Val.split(':');
+                
+                // non considera minutaggio prima delle ore 08:30
+                if (e1MinHour[0] < 8 || (e1MinHour[0] == 8 && e1MinHour[1] < 30)) {
+                    e1MinHour[0] = 8;
+                    e1MinHour[1] = 30;
+                }
+
                 // correzione per ritardi fino alle 9:45
                 if (e1MinHour[0] == 9 && e1MinHour[1] > 30 && e1MinHour[1] <= 45) {
                     e1MinHour[1] = 45;
