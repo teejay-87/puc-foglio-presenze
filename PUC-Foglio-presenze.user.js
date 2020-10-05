@@ -390,12 +390,11 @@ function addCustomPluginCode() {
                 e1MinHour = e1Val.split(':');
                 
                 // non considera minutaggio prima delle ore 08:30
-                if(e1MinHour[0] <= 8) {
-                    if(e1MinHour[1] < 30) {
-                        e1MinHour[1] = 30;
-                    }
+                if (e1MinHour[0] < 8 || (e1MinHour[0] == 8 && e1MinHour[1] < 30)) {
+                    e1MinHour[0] = 8;
+                    e1MinHour[1] = 30;
                 }
-
+                
                 // correzione per ritardi fino alle 9:45
                 if (e1MinHour[0] == 9 && e1MinHour[1] > 30 && e1MinHour[1] <= 45) {
                     e1MinHour[1] = 45;
@@ -506,10 +505,9 @@ function addCustomPluginCode() {
                 e1MinHour = e1Val.split(':');
                 
                 // non considera minutaggio prima delle ore 08:30
-                if(e1MinHour[0] <= 8) {
-                    if(e1MinHour[1] < 30) {
-                        e1MinHour[1] = 30;
-                    }
+                if (e1MinHour[0] < 8 || (e1MinHour[0] == 8 && e1MinHour[1] < 30)) {
+                    e1MinHour[0] = 8;
+                    e1MinHour[1] = 30;
                 }
 
                 // correzione per ritardi fino alle 9:45
