@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       PUC Foglio presenze
 // @namespace  http://zucchetti.cl-grp.local:8080/
-// @version    4.5
+// @version    5.0
 // @updateURL      https://raw.githubusercontent.com/teejay-87/puc-foglio-presenze/master/PUC-Foglio-presenze.meta.js
 // @downloadURL    https://raw.githubusercontent.com/teejay-87/puc-foglio-presenze/master/PUC-Foglio-presenze.user.js
 // @description  Plugin foglio presenze per calcolo ora di uscita

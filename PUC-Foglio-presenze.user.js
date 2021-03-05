@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       PUC Foglio presenze
 // @namespace  http://zucchetti.cl-grp.local:8080/
-// @version    4.5
+// @version    5.0
 // @updateURL      https://raw.githubusercontent.com/teejay-87/puc-foglio-presenze/master/PUC-Foglio-presenze.meta.js
 // @downloadURL    https://raw.githubusercontent.com/teejay-87/puc-foglio-presenze/master/PUC-Foglio-presenze.user.js
 // @description  Plugin foglio presenze per calcolo ora di uscita
@@ -26,6 +26,7 @@ function addJQuery(callback) {
 function addCustomPluginCode() {
 
     var imageUrl = "https://cdn1.iconfinder.com/data/icons/pixelo/32/bell.png";
+    var checkImgBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAEHElEQVR4Xu2aSagVRxSGPydUEudZkWycZ40xaly8EHAlgggKgTiLioqKCoq4EYmCJk4kASFBIsbgQhBxHqJx4d6lMQ7RZJ+ds/JD1bNt+91bXdX33u57b+8et051ff/563TX6deOBr/aNTg/TQGaDmhwBZpboMEN0BBFsCPwsq1E1/MWGAacAUYBvwCrgVdxIepVgOHAH8CQCPBJ4Ju4CPUowAgDPzjB9ieARcBr+1u9CVAK3jIfB5ZYEepJgJEm84Mcnmy/AkslQr0IoEJ3HXCBt/ocA5bXgwCjDfxAh8zHh3xXdAEEr2o/wANeIf8XWYAxBr6/J7zCbhdVgLHG9iHw/wAtRRRgHHANCIYHHhRNgPEGvl+A7R8BXwpecxRJAMHrUdc3K/giCTDBZD4UvgV4GBWwCA6YaOD7BGb+A/giOGAScBWoCHw5AaYBawAVjb3A04AM+IRONvC9fYJNjNaemPlyp8F5wG9AFzPwMjAXeBawmDShU4ArQEXh23KAOic/AO1jKz4PSJjnaUg8xgpetu/lEWtDVOiUeTmg5BUvgruAnSUizgLzgRflJvb8/VOT+arARx3QAfgJWOmw8NPAwlKNRoc5koZMNfA9PeMV5pz5aA3oCvxu9rjrvU8BXyc1GV0niI37DFCdCYHXm53e8MraPnpvbQFlVHs77aUiqSZja38t7QRmvJ42gu/hGa8wL3i7BbSf1Tv3uVpbSz7BwOfApQzgVfB0ukt9yQFawOzUke8C1HNfAbxJOYfglfnuKeOiw5V5b3jrAL1l3QB0zPS9jpoPD64iTDfCh8DfN3veK/MW1D4G1U/7E9AHBd/rR2CtQ/AMA9/NYWxbQzKBtw6wNxkK3AI+CVjYIWBjifiZwEUgF/BxAfS3vqfJCWnay3He/cDWBBG+AC5kAK89/zggSe+FJh2H1W+7GXgC0+Fpe+ROswz8xwELl+0zhU9ygF2f3sfVfQl5NuvN8mdAp7oDQAj836bgZZb5eBFMSowsq0fkRwFZyyK0YvClHGAX/hVwDuicBYnHHBWFdxFAY+aY1+VOHgAhIYLXnn8SMkm5WNee4AJA/2AQ7xGUm9/396rAuzrAQuhzsoqaq2i+8PdMwato5l2KYBLAeuCwL5lDXFXh0zrArn8bsMcBJu0QwWvP/5s2MGS8r513AztCbhyLrQm8rwPs2vcBWzIQoWbwoQIoPlSEv0zBq6rto0nz3QLROXT42ezhhJrDZ+EAy/09sCmFCIJXwfsvRUxFhmbhALuwg8AGh1XmBj5LB1juI8C6EiLcNXu+5pn3fRFySDBqjemjavzKHXwlHGDnVC9gVUSBXMJXSgA777fAMuAOsDgPBS/JvlkWQZftkbsxTQFyl5IqL6jpgCoLnrvbNR2Qu5RUeUEN74C3X6mzptvS5S0AAAAASUVORK5CYII=";
 
     var currentGoHomeDiv;
     var currentGoHomeWithFlexDiv;
@@ -311,6 +312,7 @@ function addCustomPluginCode() {
 
         var weekDay = jQ("div[id*=Grid1_][id$=_0_viewDiv]"); // campo giorno della settimana
         var timesDiv = jQ("div[id*=Grid1_][id$=_3_viewDiv]"); // campo delle timbrature
+        var reqDiv = jQ("div[id*=Grid1_][id$=_5_viewDiv]"); // campo delle richieste
         var todayFlex = jQ("div[id*=Grid1_][id$=_8_viewDiv]"); // campo del flex giornaliero
         var flex = jQ("div[id*=Grid1_][id$=_9_viewDiv]"); // campo del flex cumulativo
         var orario = jQ("div[id*=Grid1_][id$=_4_viewDiv]"); // campo giustificativi, dove verrà aggiunto l'orario di uscita dal plugin
@@ -690,6 +692,48 @@ function addCustomPluginCode() {
 
         if (executed || intrvlIterations >= 30)
         {
+            jQ(reqDiv).each(function (index, value) {
+
+                var wdVal = jQ(jQ(weekDay)[index]).text().trim().substring(2).trim().toUpperCase();
+
+                if (wdVal != "SAB" &&
+                    wdVal != "DOM" &&
+                    jQ(reqDiv)[index].innerHTML.indexOf("TELELAVORO") == -1) {
+
+                    var idEmploy = jQ("span[id$=TxtIdEmploy_wrp]").find("input")[0].value;
+
+                    var y = parseInt(jQ(jQ("select[id$=_TxtAnno]")[0]).find('option:selected').text());
+                    var m = jQ(jQ("select[id$=_TxtMese]")[0]).prop("selectedIndex");
+                    var d = index + 1;
+                    var currDate = y.toString() + "-" + m.toString().padStart(2, '0') + "-" + d.toString().padStart(2, '0');
+
+                    var fakeTableDiv = jQ(jQ(reqDiv)[index]).find("div");
+                    fakeTableDiv.html('<button style="width: 80px; height: 20px">SmartWork</button>');
+
+                    var swButton = fakeTableDiv.find("button");
+                    swButton.click(function () {
+                        var reqData =
+                            "rows=31&startrow=0&count=true&cmdhash=f8bff6ce8bd6c8720d2e2f0d4a6762a&sqlcmd=rows%3Ahfpr_fsendgstf&" +
+                            "isclientdb=false&Tabella=G&CHIUDI=&PAGE=&ChiChiama=S&pIDCOMPANY=000001&" +
+                            "pIDEMPLOY=" + idEmploy +
+                            "&pCOD_GSTF=30&" +
+                            "pDAL=" + currDate + "&pAL=" + currDate +
+                            "&pDALLE_HH=&pDALLE_MM=&pALLE_HH=&pALLE_MM=&pMOTIV=&pObbligoMotiv=%20&pObbligoCaus=%20&pcPeriodo=G&poreperiodico=&" +
+                            "pcCausale=&pUnita_m=O&pcPerMezza=&pSTATIGP3=%20%20&pORIGINE=MT&pPostnot=&pPrenot=&pMantimb=%20&QUANTITA=&pObbligoComm=%20&" +
+                            "pCommessa=&CODUTEAPP=0&pINFAGG1=&pINFAGG2=&pINFAGG3=&pDSCODE01=&pDSCODE02=&pDSCODE03=&pObbligoAgg=N&pANTAGREQUEST=&pALLEGRICH=";
+
+                        var xhr = new XMLHttpRequest();
+                        xhr.open("POST", "http://zucchetti.cl-grp.local:8080/HR-WorkFlow/servlet/SQLDataProviderServer", true);
+                        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                        xhr.send(reqData);
+
+                        fakeTableDiv.html('<img width="20" height="20" src="' + checkImgBase64 + '" />');
+                    });
+                };
+
+            });
+
+
             clearInterval(intrvl);
 
             /* NOTIFICATIONS & ENGLISH
