@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       PUC Foglio presenze
 // @namespace  http://zucchetti.cl-grp.local:8080/
-// @version    5.0
+// @version    5.1
 // @updateURL      https://raw.githubusercontent.com/teejay-87/puc-foglio-presenze/master/PUC-Foglio-presenze.meta.js
 // @downloadURL    https://raw.githubusercontent.com/teejay-87/puc-foglio-presenze/master/PUC-Foglio-presenze.user.js
 // @description  Plugin foglio presenze per calcolo ora di uscita
@@ -313,6 +313,7 @@ function addCustomPluginCode() {
         var weekDay = jQ("div[id*=Grid1_][id$=_0_viewDiv]"); // campo giorno della settimana
         var timesDiv = jQ("div[id*=Grid1_][id$=_3_viewDiv]"); // campo delle timbrature
         var reqDiv = jQ("div[id*=Grid1_][id$=_5_viewDiv]"); // campo delle richieste
+        var timeType = jQ("div[id*=Grid1_][id$=_7_viewDiv]"); // campo del tipo orario (01, RL, FS, NA)
         var todayFlex = jQ("div[id*=Grid1_][id$=_8_viewDiv]"); // campo del flex giornaliero
         var flex = jQ("div[id*=Grid1_][id$=_9_viewDiv]"); // campo del flex cumulativo
         var orario = jQ("div[id*=Grid1_][id$=_4_viewDiv]"); // campo giustificativi, dove verrà aggiunto l'orario di uscita dal plugin
@@ -695,9 +696,11 @@ function addCustomPluginCode() {
             jQ(reqDiv).each(function (index, value) {
 
                 var wdVal = jQ(jQ(weekDay)[index]).text().trim().substring(2).trim().toUpperCase();
+                var timeTypeVal = jQ(jQ(timeType)[index]).text().trim();
 
                 if (wdVal != "SAB" &&
                     wdVal != "DOM" &&
+                    timeTypeVal != "FS" &&
                     jQ(reqDiv)[index].innerHTML.indexOf("TELELAVORO") == -1) {
 
                     var idEmploy = jQ("span[id$=TxtIdEmploy_wrp]").find("input")[0].value;
