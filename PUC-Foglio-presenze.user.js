@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       PUC Foglio presenze
 // @namespace  http://zucchetti.cl-grp.local:8080/
-// @version    5.2
+// @version    5.3
 // @updateURL      https://raw.githubusercontent.com/teejay-87/puc-foglio-presenze/master/PUC-Foglio-presenze.meta.js
 // @downloadURL    https://raw.githubusercontent.com/teejay-87/puc-foglio-presenze/master/PUC-Foglio-presenze.user.js
 // @description  Plugin foglio presenze per calcolo ora di uscita
@@ -385,7 +385,7 @@ function addCustomPluginCode() {
                 if (!executed)
                 {
                     currentYear = parseInt(jQ(jQ("select[id$=_TxtAnno]")[0]).find('option:selected').text());
-                    currentMonth = jQ(jQ("select[id$=_TxtMese]")[0]).prop("selectedIndex");
+                    currentMonth = jQ(jQ("select[id$=_TxtMese]")[0]).prop("selectedIndex") + 1;
                 }
 
                 executed = true;
@@ -493,7 +493,7 @@ function addCustomPluginCode() {
                 if (!executed)
                 {
                     currentYear = parseInt(jQ(jQ("select[id$=_TxtAnno]")[0]).find('option:selected').text());
-                    currentMonth = jQ(jQ("select[id$=_TxtMese]")[0]).prop("selectedIndex");
+                    currentMonth = jQ(jQ("select[id$=_TxtMese]")[0]).prop("selectedIndex") + 1;
                 }
 
                 executed = true;
@@ -691,52 +691,65 @@ function addCustomPluginCode() {
             }
         });
 
-        if (executed || intrvlIterations >= 30)
+        if (executed || intrvlIterations >= 15)
         {
-            /*
-            jQ(reqDiv).each(function (index, value) {
+            var checkEnableSmartWorkButton = document.createElement("div");
+            checkEnableSmartWorkButton.setAttribute("class", "label");
+            checkEnableSmartWorkButton.setAttribute("style", "margin-left: 1000px !important");
+            jQ(checkEnableSmartWorkButton).html('<input type="checkbox" id="checkEnableSmartWorkBtns" name="checkEnableSmartWorkBtns"><label for="checkEnableSmartWorkBtns">Show SmartWork buttons</label>');
+            jQ(checkEnableSmartWorkButton).find('input').prop('checked', localStorage.isEnabledSmartWorkBtns == "true");
+            jQ(checkEnableSmartWorkButton).find('input').on('click', function(evnt) { localStorage.isEnabledSmartWorkBtns = evnt.target.checked; setTimeout(function() { location.reload() }, 100); });
+            jQ("div[class*=hfpr_welencodip2c_portlet]").append(checkEnableSmartWorkButton);
 
-                var wdVal = jQ(jQ(weekDay)[index]).text().trim().substring(2).trim().toUpperCase();
-                var timeTypeVal = jQ(jQ(timeType)[index]).text().trim();
 
-                if (wdVal != "SAB" &&
-                    wdVal != "DOM" &&
-                    timeTypeVal != "FS" &&
-                    jQ(reqDiv)[index].innerHTML.indexOf("TELELAVORO") == -1) {
+            if (localStorage.isEnabledSmartWorkBtns == "true") {
+                jQ(reqDiv).each(function (index, value) {
 
-                    var idEmploy = jQ("span[id$=TxtIdEmploy_wrp]").find("input")[0].value;
+                    var wdVal = jQ(jQ(weekDay)[index]).text().trim().substring(2).trim().toUpperCase();
+                    var timeTypeVal = jQ(jQ(timeType)[index]).text().trim();
 
-                    var y = parseInt(jQ(jQ("select[id$=_TxtAnno]")[0]).find('option:selected').text());
-                    var m = jQ(jQ("select[id$=_TxtMese]")[0]).prop("selectedIndex");
-                    var d = index + 1;
-                    var currDate = y.toString() + "-" + m.toString().padStart(2, '0') + "-" + d.toString().padStart(2, '0');
+                    var currReqHTML = jQ(reqDiv)[index].innerHTML;
 
-                    var fakeTableDiv = jQ(jQ(reqDiv)[index]).find("div");
-                    fakeTableDiv.html('<button style="width: 80px; height: 20px">SmartWork</button>');
+                    if (wdVal != "SAB" &&
+                        wdVal != "DOM" &&
+                        timeTypeVal != "FS" &&
+                        currReqHTML.indexOf("TELELAVORO") == -1 &&
+                        currReqHTML.indexOf("PERMESSI") == -1 &&
+                        currReqHTML.indexOf("FERIE") == -1) {
 
-                    var swButton = fakeTableDiv.find("button");
-                    swButton.click(function () {
-                        var reqData =
-                            "rows=31&startrow=0&count=true&cmdhash=f8bff6ce8bd6c8720d2e2f0d4a6762a&sqlcmd=rows%3Ahfpr_fsendgstf&" +
-                            "isclientdb=false&Tabella=G&CHIUDI=&PAGE=&ChiChiama=S&pIDCOMPANY=000001&" +
-                            "pIDEMPLOY=" + idEmploy +
-                            "&pCOD_GSTF=30&" +
-                            "pDAL=" + currDate + "&pAL=" + currDate +
-                            "&pDALLE_HH=&pDALLE_MM=&pALLE_HH=&pALLE_MM=&pMOTIV=&pObbligoMotiv=%20&pObbligoCaus=%20&pcPeriodo=G&poreperiodico=&" +
-                            "pcCausale=&pUnita_m=O&pcPerMezza=&pSTATIGP3=%20%20&pORIGINE=MT&pPostnot=&pPrenot=&pMantimb=%20&QUANTITA=&pObbligoComm=%20&" +
-                            "pCommessa=&CODUTEAPP=0&pINFAGG1=&pINFAGG2=&pINFAGG3=&pDSCODE01=&pDSCODE02=&pDSCODE03=&pObbligoAgg=N&pANTAGREQUEST=&pALLEGRICH=";
+                        var idEmploy = jQ("span[id$=TxtIdEmploy_wrp]").find("input")[0].value;
 
-                        var xhr = new XMLHttpRequest();
-                        xhr.open("POST", "http://zucchetti.cl-grp.local:8080/HR-WorkFlow/servlet/SQLDataProviderServer", true);
-                        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                        xhr.send(reqData);
+                        var y = parseInt(jQ(jQ("select[id$=_TxtAnno]")[0]).find('option:selected').text());
+                        var m = jQ(jQ("select[id$=_TxtMese]")[0]).prop("selectedIndex") + 1;
+                        var d = index + 1;
+                        var currDate = y.toString() + "-" + m.toString().padStart(2, '0') + "-" + d.toString().padStart(2, '0');
 
-                        fakeTableDiv.html('<img width="20" height="20" src="' + checkImgBase64 + '" />');
-                    });
-                };
+                        var fakeTableDiv = jQ(jQ(reqDiv)[index]).find("div");
+                        fakeTableDiv.html('<button style="width: 80px; height: 20px">SmartWork</button>');
 
-            });
-            */
+                        var swButton = fakeTableDiv.find("button");
+                        swButton.click(function () {
+                            var reqData =
+                                "rows=31&startrow=0&count=true&cmdhash=f8bff6ce8bd6c8720d2e2f0d4a6762a&sqlcmd=rows%3Ahfpr_fsendgstf&" +
+                                "isclientdb=false&Tabella=G&CHIUDI=&PAGE=&ChiChiama=S&pIDCOMPANY=000001&" +
+                                "pIDEMPLOY=" + idEmploy +
+                                "&pCOD_GSTF=30&" +
+                                "pDAL=" + currDate + "&pAL=" + currDate +
+                                "&pDALLE_HH=&pDALLE_MM=&pALLE_HH=&pALLE_MM=&pMOTIV=&pObbligoMotiv=%20&pObbligoCaus=%20&pcPeriodo=G&poreperiodico=&" +
+                                "pcCausale=&pUnita_m=O&pcPerMezza=&pSTATIGP3=%20%20&pORIGINE=MT&pPostnot=&pPrenot=&pMantimb=%20&QUANTITA=&pObbligoComm=%20&" +
+                                "pCommessa=&CODUTEAPP=0&pINFAGG1=&pINFAGG2=&pINFAGG3=&pDSCODE01=&pDSCODE02=&pDSCODE03=&pObbligoAgg=N&pANTAGREQUEST=&pALLEGRICH=";
+
+                            var xhr = new XMLHttpRequest();
+                            xhr.open("POST", "http://zucchetti.cl-grp.local:8080/HR-WorkFlow/servlet/SQLDataProviderServer", true);
+                            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                            xhr.send(reqData);
+
+                            fakeTableDiv.html('<img width="20" height="20" src="' + checkImgBase64 + '" />');
+                        });
+                    };
+
+                });
+            }
 
 
             clearInterval(intrvl);
